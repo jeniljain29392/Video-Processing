@@ -30,8 +30,8 @@ v = zeros(size(anchor));
       v(j,k)=nu(2); % velocity of motion in y direction           
         end;
     end;
-        figure,imshow(anchor);
-        figure,imshow(target);
+        %figure,imshow(anchor);
+        %figure,imshow(target);
 % downsize u and v
 u_deci = u(1:5:end, 1:5:end);
 v_deci = v(1:5:end, 1:5:end);
@@ -42,11 +42,20 @@ X_deci = X(1:5:end, 1:5:end);
 Y_deci = Y(1:5:end, 1:5:end);
 
 %% Plot optical flow field
- figure();
- imshow(targett);
+ figure, imshow(targett);
  hold on;
 % % draw the velocity vectors
  quiver(X_deci, Y_deci, u_deci,v_deci, 'y');
  vect=[u_deci,v_deci];
 %% interpolated image
+
+% K-means - where number of cluster chosen as k = 2, as the motion is only
+% at the center(Man walking).
+% reconst1 = k_mean(targett, u, v, 2);
+% figure,imshow(reconst1,[]);title('K-means');
+
+% Thresholding - using histogram of motion vectors we find out the 
+%distribution and set a threshold
+% reconst2 = thresholding(targett, u, v);
+% figure,imshow(reconst2,[]); title('Thresholding');
 end
