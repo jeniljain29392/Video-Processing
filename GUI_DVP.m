@@ -98,7 +98,7 @@ global EndTime;
 global Activity;
 [StartTime, EndTime, Activity] = textread(final_name, '%f%f%s');
 [row col]=size(Activity);
-cd('/Users/prianca/Documents')
+cd('/Users/prianca/Documents/Fall2015/dvp/project/Project_DVP/Video-Processing')
 set(handles.text5,'string',row)
 set(handles.popupmenu1,'String',{Activity{:}});
 
@@ -148,5 +148,6 @@ global EndTime;
 
 
 popup_sel_index = get(handles.popupmenu1, 'Value');
-StartTime(popup_sel_index,1)
-EndTime(popup_sel_index,1)
+set(handles.text11,'String',StartTime(popup_sel_index,1));
+set(handles.text8,'String',EndTime(popup_sel_index,1));
+
