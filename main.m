@@ -11,5 +11,6 @@ for i=1:nFrames-1
     vect_04_1(i) = {get_motionVect_perImg(scaled_vid(:,:,:,i), scaled_vid(:,:,:,i+1), 3)};
 end
 pause;
-save hash_04_1.mat video_04_1 vect_04_1;
+save video_04_1.mat video_04_1
+save vect_04_1.mat vect_04_1;
 close all;
