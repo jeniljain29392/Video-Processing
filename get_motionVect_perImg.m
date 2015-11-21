@@ -1,15 +1,15 @@
-function [vect]=get_motionVect_perImg(frame1,frame2)
-    [m,n]=size(frame1);
+function [vect]=get_motionVect_perImg(frame1,frame2,partition)
+    [m,n,~]=size(frame1);
     % run algorithm to get optical flow
-    ww= 40;
+    ww= 100;
 w=round(ww/2);
     anchort=im2double(padarray(rgb2gray(frame1),[w w],0));
     targett=im2double(padarray(rgb2gray(frame2),[w w],0));
     anchor=anchort;%imresize(anchort,0.5);
     target=targett;%imresize(targett,0.5);
     %% perform motion estimation using lucas-kanade
-u = zeros(size(anchor));
-v = zeros(size(anchor));
+tu = zeros(size(anchor));
+tv = zeros(size(anchor));
     I_x=conv2(anchor,[-1 1;-1 1],'valid');      % get partial derivative in x direction
     I_y=conv2(anchor,[-1 -1;1 1],'valid');      % get partial derivative in y direction
     I_t=conv2(anchor,ones(2),'valid') + conv2(target,-ones(2),'valid'); % get partial derivative in t direction   
@@ -26,27 +26,43 @@ v = zeros(size(anchor));
       A = [Ix Iy]; % get A here
       nu = pinv(A)*b; % get velocity here
       
-      u(j,k)=nu(1); % velocity of motion in x direction
-      v(j,k)=nu(2); % velocity of motion in y direction           
+      tu(j,k)=nu(1); % velocity of motion in x direction
+      tv(j,k)=nu(2); % velocity of motion in y direction           
         end;
     end;
         %figure,imshow(anchor);
         %figure,imshow(target);
 % downsize u and v
-u_deci = u(1:5:end, 1:5:end);
-v_deci = v(1:5:end, 1:5:end);
+u=tu(w+1:end-w,w+1:end-w);
+v=tv(w+1:end-w,w+1:end-w);
+[f,g]=size(u);
+itrx=1;
+part_f=(f/partition);      % for partitioning in x direction in 3 parts
+part_g=(g/partition);      % for partitioning in y direction in 3 parts
+for itrf=1:partition
+    for itrg=1:partition
+        u_ag(itrf,itrg) = mean(mean(u((itrf-1)*part_f+1:(itrf)*part_f,(itrg-1)*part_g+1:(itrg)*part_g)));
+        v_ag(itrf,itrg) = mean(mean(v((itrf-1)*part_f+1:(itrf)*part_f,(itrg-1)*part_g+1:(itrg)*part_g)));
+    end
+end
 % get coordinate for u and v in the original frame
 [m, n] = size(anchort);
-[X,Y] = meshgrid(1:n, 1:m);
-X_deci = X(1:5:end, 1:5:end);
-Y_deci = Y(1:5:end, 1:5:end);
+[X,Y] = meshgrid(1:m, 1:n);
+part_f=floor(m/partition);      % for partitioning in x direction in 3 parts
+part_g=floor(n/partition);      % for partitioning in y direction in 3 parts
+for itrf=1:partition
+    for itrg=1:partition
+        X_deci(itrf,itrg) = X((itrf-1)*part_f+1,(itrg-1)*part_g+1);
+        Y_deci(itrf,itrg) = Y((itrf-1)*part_f+1,(itrg-1)*part_g+1);
+    end
+end
 
 %% Plot optical flow field
  figure, imshow(targett);
  hold on;
 % % draw the velocity vectors
- quiver(X_deci, Y_deci, u_deci,v_deci, 'y');
- vect=[u_deci,v_deci];
+ quiver(X_deci, Y_deci, u_ag,v_ag, 'y');
+ vect=[u_ag,v_ag];
 %% interpolated image
 
 % K-means - where number of cluster chosen as k = 2, as the motion is only
@@ -56,6 +72,6 @@ Y_deci = Y(1:5:end, 1:5:end);
 
 % Thresholding - using histogram of motion vectors we find out the 
 %distribution and set a threshold
-% reconst2 = thresholding(targett, u, v);
-% figure,imshow(reconst2,[]); title('Thresholding');
+reconst2 = thresholding(targett, tu, tv);
+figure,imshow(reconst2,[]); title('Thresholding');
 end

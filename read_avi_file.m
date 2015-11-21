@@ -21,8 +21,8 @@ k=1;
 startf=vstart.*v.FrameRate;
 endf=vend.*v.FrameRate;
 for i=startf:interval:endf
-frames(:,:,:,k)=read(v,i);
-     k=k+1;
+frames(:,:,:,k:k+1)=read(v,[i i+1]);
+     k=k+2;
  end
 videomat=frames;
 [~,~,~,n]=size(videomat);
