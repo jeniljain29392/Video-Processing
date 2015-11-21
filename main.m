@@ -23,7 +23,7 @@ load('temp_vect1.mat');
 for k=1:3:nvect-3
     for i=1:3
         for j=1:3
-            1s_vect{ceil(k/3)}(i,j) = mean([vect_20_1{k}(i,j);
+            vect_1s{ceil(k/3)}(i,j) = mean([vect_20_1{k}(i,j);
                                      vect_20_1{k+1}(i,j);
                                      vect_20_1{k+2}(i,j)]);
         end
