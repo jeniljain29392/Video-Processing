@@ -14,13 +14,13 @@ if(isempty(vstart))
     vstart=1;
 end
 if(isempty(vend))
-    vend=v.Duration.*v.FrameRate;
+    vend=v.Duration;
 end
 s = struct('cdata',zeros(vidHeight,vidWidth,3,'uint8'),'colormap',[]);
 k=1;
 startf=vstart.*v.FrameRate;
 endf=vend.*v.FrameRate;
-for i=startf:interval:endf
+for i=startf:interval:endf-interval-1
 frames(:,:,:,k:k+1)=read(v,[i i+1]);
      k=k+2;
  end
