@@ -1,12 +1,20 @@
-function [vect]=get_motionVect_perImg(frame1,frame2,partition)
-[m,n,~]=size(frame1);
-% run algorithm to get optical flow
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  this function does motion estimation using Lukas-Kanade Optical Flow 
+%  implementation and motion segmentation using thresholding.
+%  frame1 : Anchor frame
+%  frame2 : Target Frame
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+function [reconst]=get_motionVect_perImg(frame1,frame2)
+
+%% run algorithm to get optical flow
 ww= 40;
 w=round(ww/2);
 anchort=im2double(padarray(rgb2gray(frame1),[w w],0));
 targett=im2double(padarray(rgb2gray(frame2),[w w],0));
-anchor=anchort;%imresize(anchort,0.5);
-target=targett;%imresize(targett,0.5);
+anchor=anchort;
+target=targett;
+
 %% perform motion estimation using lucas-kanade
 u = zeros(size(anchor));
 v = zeros(size(anchor));
@@ -30,19 +38,12 @@ for j=w+1:2:size(I_x,1)-w
         v(j,k)=nu(2); % velocity of motion in y direction
     end;
 end;
-%figure,imshow(anchor);
-%figure,imshow(target);
-
-%% interpolated image
-
-% K-means - where number of cluster chosen as k = 2, as the motion is only
-% at the center(Man walking).
-% reconst1 = k_mean(targett, u, v, 2);
-% figure,imshow(reconst1,[]);title('K-means');
+% figure,imshow(anchor);
+% figure,imshow(target);
 
 % Thresholding - using histogram of motion vectors we find out the
-%distribution and set a threshold
-reconst2 = thresholding(targett, u, v);
-figure,imshow(reconst2,[]); title('Thresholding');
-[vect] = divide_in_grid(reconst2, 3, w);
+% distribution and set a threshold
+reconst = thresholding(targett, u, v);
+% figure,imshow(reconst2,[]); title('Thresholding');
+
 end
