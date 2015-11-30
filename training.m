@@ -8,27 +8,25 @@
 clc;
 clear all;
 files = dir('*.avi');
-motion_vector_arr = struct();
-motion_vector_arr.name = '';
 
 j = 1;
 for file = files'
     
     % Perform Motion estimation
-    videomat = read_avi_file(file.name, 1, 2, 5);
+    videomat = read_avi_file(file.name, [], [], 5);
+    %load(' video_18_02.mat');
     [~,~,~,nFrames] = size(videomat);
     vectmat = repmat(cell(1), 1, nFrames);
     
     % Perform motion segmentation
     for i=1:2:nFrames-1
+        i
         vectmat(ceil(i/2)) = {get_motionVect_celiu(videomat(:,:,:,i)...
         ,videomat(:,:,:,i+1))};
     end
-    
-    motion_vector_arr(j).name = file.name;
-    motion_vector_arr(j).motionVectors = vectmat;
+
     j=j+1;
 end
 
-save motion_vector_arr.mat motion_vector_arr;
+save -v7.3 vectmat_17_02.mat vectmat;
 close all;
