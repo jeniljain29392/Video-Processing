@@ -22,6 +22,7 @@ interval(1) = 1;
 interval(1, size(interval,2)+1) = len;
 
 k = 1;
+[row, col] = size(vect{1});
 sequences = struct('frame', [],'fstart', [], 'fend', [], 'eucli_dist', []...
     ,'cosine_dist', []);
 
@@ -30,9 +31,9 @@ for i=1:size(interval,2)-1
     fend = interval(i+1);
     if (fend - fstart)>=5
         for j = fstart:fend
-            avg_seq(j,:) = reshape(vect{j}, [1, 9]);
+            avg_seq(j,:) = reshape(vect{j}, [1, row*col]);
         end
-        sequences(k).frame = reshape(mean(avg_seq(fstart:fend, :)),[3,3]);
+        sequences(k).frame = reshape(mean(avg_seq(fstart:fend, :)),[row, col]);
         sequences(k).fstart = fstart;
         sequences(k).fend = fend;
         k = k + 1;
