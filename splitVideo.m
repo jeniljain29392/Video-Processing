@@ -3,7 +3,7 @@
 %  kmeans_IDX : K-mean Clustering index array of a video (1 x m)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [sequences] = splitVideo(vect, kmeans_IDX, seq_len)
+function [clips] = splitVideo(vect, kmeans_IDX, seq_len)
 [~,len] = size(kmeans_IDX);
 interval = [];
 count = 0;
@@ -23,8 +23,7 @@ interval(1, size(interval,2)+1) = len;
 
 k = 1;
 [row, col] = size(vect{1});
-sequences = struct('frame', [],'fstart', [], 'fend', [], 'eucli_dist', []...
-    ,'cosine_dist', []);
+clips = struct('frame', [],'start', [], 'end', []);
 
 for i=1:size(interval,2)-1
     fstart = interval(i);
@@ -33,9 +32,9 @@ for i=1:size(interval,2)-1
         for j = fstart:fend
             avg_seq(j,:) = reshape(vect{j}, [1, row*col]);
         end
-        sequences(k).frame = reshape(mean(avg_seq(fstart:fend, :)),[row, col]);
-        sequences(k).fstart = fstart;
-        sequences(k).fend = fend;
+        clips(k).frame = reshape(mean(avg_seq(fstart:fend, :)),[row, col]);
+        clips(k).start = fstart;
+        clips(k).end = fend;
         k = k + 1;
         clear avg_seq;
     end
