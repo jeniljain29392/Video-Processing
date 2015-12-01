@@ -1,41 +1,77 @@
+function main(filename, istrt, istop)
+tic
 clc;
-clear all;
+% clear all;
 
-%output_vects = get_videoVect('rgb-25-1.avi', [], [], 5);
-%input_vects = get_videoVect('rgb-07-2.avi', 268, 278, 5);
+%% Get input clip and dataset
+input_clip = get_inputClip(filename, istrt, istop);
+outpt_clips = struct('name', {}, 'clips', {});
 
-load('vect_11_1.mat');
-load('vect_25_1.mat');
-output_vects = vect_11_1;
-input_vects = vect_25_1;
+path = pwd;
+files = dir(strcat(path, '\dataset\', '*.mat'));
+clips_mat = dir(strcat(path, '\clips\', '*.mat'));
 
-%% Take average of n frames to get vector for one sec of the video
-input_vect = vect_per_Nframes(input_vects, 3);
-op_vect_per_sec = vect_per_Nframes(output_vects, 3);
+j = 1;
+for file = files'
+    tic
+    if ~strcmp(file.name, input_clip.name)
+        
+        clip_name = strcat('clips-', file.name(8:11), '.mat');
+        cd(strcat(path, '\clips\'));
+        if ~exist(clip_name)
+            
+            cd(path);
+            load(strcat(path, '\dataset\', file.name));
 
-istart = 269; iend = 278;
-for j = istart:iend
-   input_seq(j-istart+1,:) = reshape(input_vect{j}, [1, 9]);
+            %% Divide vectors into WxW grid
+            outpt_grid = divide_in_grid(vectmat, 80);
+
+            %% Take average of n frames to get vector for one sec of the video
+            op_vect_half_sec = vect_per_Nframes(outpt_grid, 3);
+
+            %% kmeans clustering of the vectors of the frame
+            kmeans_IDX = Ndim_kmeans(op_vect_half_sec, 4);
+
+            %% Get sequences of consecutive simialar frames
+            clips = splitVideo(op_vect_half_sec, kmeans_IDX, 10);
+
+            %% save clips information of a particular video
+            cd(strcat(path, '\clips\'));
+            save(clip_name, 'clips');
+            cd(path);
+            
+        else
+            load(clip_name);
+            cd(path);
+        end
+        
+        %% Divide vectors into WxW grid
+        input_grid = divide_in_grid(input_clip.vect, 80);
+            
+        %% Get a vector for the input clip
+        input_vect = vect_per_Nframes(input_grid, []);
+        
+        outpt_clips(j).name = strcat('rgb-',file.name(8:11), '.avi');
+        outpt_clips(j).clips = struct('start', {}, 'end', {}, 'eucli_dist'...
+                                    ,{}, 'cosine_dist', {});
+                                
+        %% Euclidean and Cosine distance
+        for i = 1:size(clips,2)
+            
+            outpt_clips(j).clips(i).start = clips(i).start;
+            
+            outpt_clips(j).clips(i).end = clips(i).end;
+            
+            outpt_clips(j).clips(i).eucli_dist = ...
+                euclidean_distance(clips(i).frame, input_vect);
+            
+            outpt_clips(j).clips(i).cosine_dist = ...
+                cosine_distance(clips(i).frame, input_vect);
+        end
+        j = j + 1;
+    end
+    toc
 end
-input_vect = reshape(mean(input_seq), [3,3]);
-
-%% kmeans clustering of the vectors of the frame
-kmeans_IDX = Ndim_kmeans(op_vect_per_sec, 4);
-
-%% Get sequences of consecutive simialar frames
-sequences = splitVideo(op_vect_per_sec, kmeans_IDX);
-
-%% Euclidean distance
-for i = 1:size(sequences,2)
-    sequences(i).eucli_dist = euclidean_distance(sequences(i).frame, input_vect);
-    sequences(i).cosine_dist = cosine_distance(sequences(i).frame, input_vect);
+save('output.mat', 'outpt_clips');
+toc
 end
-
-%% scatter
-for i = 1:size(sequences,2)
-    x(i,:) = sequences(i).eucli_dist;
-    y(i,:) = sequences(i).cosine_dist;
-end
-scatter(x,y);
-pause;
-close all;
