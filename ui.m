@@ -84,8 +84,17 @@ if (length(FileName)<=1)
 end
 set(handles.fileName, 'String', FileName);
 %f=tdfread(strcat('./activityAnnotations/', FileName(5:end-4),'-activityAnnotation.txt'),' ');
+global start_time;
+global end_time;
 [StartTime, EndTime, Activity] = textread(strcat('./activityAnnotations/', FileName(5:end-4),'-activityAnnotation.txt'), '%f%f%s');
+start_time = StartTime;
+end_time = EndTime;
 set(handles.popupmenu1, 'String', {Activity{:}});
+set(handles.popupmenu1, 'Value', 1);
+sval = [1 1];
+data = struct('val',sval);
+hObject.UserData = data;
+%set(handles.StartTime, 'Value', StartTime);
 
 
 % --- Executes on selection change in popupmenu1.
@@ -96,7 +105,8 @@ function popupmenu1_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns popupmenu1 contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popupmenu1
-
+value = get(handles.popupmenu1,'Value');
+display(value);
 
 % --- Executes during object creation, after setting all properties.
 function popupmenu1_CreateFcn(hObject, eventdata, handles)
@@ -123,3 +133,13 @@ function retrieveRelavantVideos_Callback(hObject, eventdata, handles)
 % hObject    handle to retrieveRelavantVideos (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+h = findobj('Tag','selectVideo');
+%data = selectVideo.UserData;
+global start_time;
+global end_time;
+value = get(handles.popupmenu1,'Value');
+input_start = (start_time(value)-start_time(1))/10^6;
+input_end = (end_time(value)-start_time(1))/10^6;
+file_name = get(handles.fileName, 'String');
+display(file_name);
+temp(file_name,input_start, input_end);
