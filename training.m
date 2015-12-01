@@ -17,9 +17,8 @@ clear all;
 
 % Perform Motion estimation. Change file name
 videomat = read_avi_file('rgb-02-1.avi', [], [], 5);
-%load(' video_18_02.mat');
 [~,~,~,nFrames] = size(videomat);
-vectmat = repmat(cell(1), 1, nFrames);
+vectmat = repmat(cell(1), 1, nFrames/2);
 
 % Perform motion segmentation
 for i=1:2:nFrames-1
@@ -30,3 +29,4 @@ end
     
 save -v7.3 vectmat_02_01.mat vectmat;
 close all;
+
