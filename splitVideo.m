@@ -3,14 +3,14 @@
 %  kmeans_IDX : K-mean Clustering index array of a video (1 x m)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [sequences] = splitVideo(vect, kmeans_IDX)
+function [sequences] = splitVideo(vect, kmeans_IDX, seq_len)
 [~,len] = size(kmeans_IDX);
 interval = [];
 count = 0;
 for i = 1: len-1
     if(kmeans_IDX(i)==kmeans_IDX(i+1))
         count = count + 1;
-    elseif(count>=5)
+    elseif(count>=seq_len)
         interval(size(interval,2)+1) = i - count;
         interval(size(interval,2)+1) = i ;
         count = 0;
