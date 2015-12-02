@@ -89,13 +89,13 @@ for file = files'
         input_vect = vect_per_Nframes(input_grid, []);
         
         % Euclidean and Cosine distance Heap
-        nClips = size(clips,2);
+        nClips = max(3, size(clips,2));
         eucli_heap = MinHeap(nClips);
         cosin_heap = MinHeap(nClips);
         heap_entry = struct();
         heap_entry.name = file.name;
         
-        for i = 1:nClips
+        for i = 1:size(clips,2)
             
             % Get the start time of the video clip
             outpt_clips(j).clips(i).start = clips(i).start;
@@ -121,7 +121,7 @@ for file = files'
         end
         
         % Save the top 3 similar clips from each video into a Main Heap. 
-        for i=1:clips_per_vid
+        for i=1:min(clips_per_vid, size(clips,2))
             Eucli_Ranking.InsertKey( eucli_heap.ExtractMin() );
             Cosin_Ranking.InsertKey( cosin_heap.ExtractMin() );
         end
