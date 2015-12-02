@@ -13,7 +13,7 @@ clc;
 % Reading all mat files
 path = pwd;
 addpath(genpath(path));
-files = dir(strcat(path, '\dataset\', '*.mat'));
+files = dir(strcat(path, '\dataset\motion_vectors\', '*.mat'));
 
 % Get input clip and dataset
 % %Get input vectors directly from the video file at an interval of 5
@@ -47,7 +47,7 @@ for file = files'
         if ~exist(clip_name)
             
             cd(path);
-            load(strcat(path, '\dataset\', file.name));
+            load(strcat(path, '\dataset\motion_vectors\', file.name));
             
             % Divide vectors into WxW grid. A grid contains the average
             % value of all the pixels from the motion segmented frame.
