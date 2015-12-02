@@ -22,8 +22,8 @@ load(mat_file);
 
 %%Each second of a video have 6 motion vectors, since frames are read at an
 %%interval of 5.
-strt_frame = istrt * 6;
-stop_frame = istop * 6;
+strt_frame = ceil(istrt * 6);
+stop_frame = ceil(istop * 6);
 for j = strt_frame:stop_frame
     input_clip(1).vect{j-strt_frame+1} = vectmat{j};
 end
