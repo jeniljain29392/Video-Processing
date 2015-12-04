@@ -10,10 +10,16 @@
 function main(filename, istrt, istop)
 clc;
 
+% Tuning parameter
+W = 40;                 % grid size
+min_duration = 5;       % minimum size of the clip
+no_of_cluster = 4;      % number of clusters
+clip_resolution = 1;    % half sec or a sec of video
+
 % Reading all mat files
 path = pwd;
 addpath(genpath(path));
-files = dir(strcat(path, '\dataset\motion_vectors\', '*.mat'));
+files = dir(strcat(path, '\dataset\', '*.mat'));
 
 % Get input clip and dataset
 % %Get input vectors directly from the video file at an interval of 5
@@ -46,15 +52,8 @@ for file = files'
         cd(strcat(path, '\clips\'));
         if ~exist(clip_name)
             
-            cd(path);
-            load(strcat(path, '\dataset\motion_vectors\', file.name));
-            
-            % Divide vectors into WxW grid. A grid contains the average
-            % value of all the pixels from the motion segmented frame.
-            outpt_grid = divide_in_grid(vectmat, 80);
-            
             % Take average of n frames to get vector for half sec of the video
-            op_vect_half_sec = vect_per_Nframes(outpt_grid, 3);
+            op_vect_per_sec = vect_per_Nframes(f_vect, 6*clip_resolution);
             
             %%kmeans clustering of the frames.Four clusters are
             % 1. cutting  : motion is along the center of the screen
@@ -62,11 +61,12 @@ for file = files'
             % 3. dressing : motion is along bottom of the screen as well as
             %               along center
             % 4. No motion
-            kmeans_IDX = Ndim_kmeans(op_vect_half_sec, 4);
+            kmeans_IDX = Ndim_kmeans(op_vect_per_sec, no_of_cluster);
             
             % Get sequences of consecutive simialar frames having same
             % motion regions. And minimum size of the clip is 5 sec.
-            clips = splitVideo(op_vect_half_sec, kmeans_IDX, 5*2);
+            clips = splitVideo(op_vect_per_sec, kmeans_IDX, min_duration *...
+                clip_resolution);
             
             % save clips information of a particular video
             cd(strcat(path, '\clips\'));
@@ -80,7 +80,7 @@ for file = files'
         end
         
         % Divide vectors into WxW grid
-        input_grid = divide_in_grid(input_clip.vect, 80);
+        input_grid = divide_in_grid(input_clip.vect, W);
         
         % Get a vector for the input clip. Since input clip represent an
         % action which will have consistent motion vector along a
@@ -136,4 +136,6 @@ Ranking(1).Cosine    = Cosin_Ranking;
 save(strcat(path,'\retrieval\','Ranking.mat'), 'Ranking');
 save(strcat(path,'\retrieval\','output.mat'), 'outpt_clips');
 
+% display the retrieved video list
+output;
 end
